@@ -37,7 +37,7 @@ public class Field {
         return fieldSize;
     }
 
-    public void araseField(){
+    public void emptyField(){
         for(int i = 0; i < fieldSize; i++) {
             araseLine(i);
         }
@@ -162,46 +162,27 @@ public class Field {
         return false;
     }
 
-    private boolean checkInclineDownWinn(int x, int y, char cellValue){
-        if(x > fieldSize || y > fieldSize || x < 0 || y < 0){
-            System.out.println("Wrong data in checkInclineDownWinn");
-            return  false;
-        }
-        if(fieldSize - x >= WIN_NUMBER_OF_CELLS && fieldSize - y >= WIN_NUMBER_OF_CELLS){
-            for (int i = 0; i <= WIN_NUMBER_OF_CELLS ; i++){
-                if( field[x + i][y + i] != cellValue) return false;
-            }
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
+    private boolean checkInclineDownWinn(char cellValue){
 
-    private boolean checkInclineUpWinn(int x, int y, char cellValue){
-        if(x > fieldSize || y > fieldSize || x < 0 || y < 0){
-            System.out.println("Wrong data in checkInclineDownWinn");
-            return  false;
-        }
-        if(fieldSize - x >= WIN_NUMBER_OF_CELLS && y >= WIN_NUMBER_OF_CELLS){
-            for (int i = 0; i <= WIN_NUMBER_OF_CELLS ; i++){
-                if( field[x + i][y - i] != cellValue) return false;
+            for (int i = 0; i < WIN_NUMBER_OF_CELLS ; i++){
+                if( field[i][i] != cellValue) return false;
             }
             return true;
         }
-        else {
-            return false;
+
+
+    private boolean checkInclineUpWinn(char cellValue){
+            for (int i = 0; i < WIN_NUMBER_OF_CELLS ; i++){
+                if( field[i][fieldSize - i - 1] != cellValue) return false;
+            }
+            return true;
         }
-    }
 
 
     private boolean checkFieldInclineWinn(char cellValue){
-        boolean checkIncline = true;
-        for(int x = 0; x < fieldSize; x++){
-            for(int y = 0; y < fieldSize; y++){
-                if(checkInclineDownWinn(x, y, cellValue) || checkInclineUpWinn(x, y, cellValue)) return true;
-            }
-        }
+                if(checkInclineDownWinn(cellValue) || checkInclineUpWinn(cellValue)){
+                    return true;
+                }
         return false;
     }
 
@@ -222,5 +203,21 @@ public class Field {
             }
         }
         return true;
+    }
+
+    public void setField(Field fieldIn){
+        if(fieldSize == fieldIn.fieldSize){
+            //System.arraycopy(fieldIn.field,0,this.field,0,fieldSize);   Does not work
+            for (int i = 0; i < fieldSize; i++){
+                for (int j = 0; j < fieldSize; j++){
+                    this.field[i][j] = fieldIn.field[i][j];
+                }
+            }
+        }
+
+    }
+
+    public void setDefaultCellValue(int x, int y){
+        setCell(x,y,DEFAULT_CELL_VALUE);
     }
 }

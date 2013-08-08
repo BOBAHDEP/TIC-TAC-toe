@@ -45,7 +45,7 @@ public class GetData {
             if (answer.equals("no")){
                 return false;
             } else {
-                System.out.println("Wrong answer, please enter it again");
+                System.out.println("Wrong answer, please enter yes or no");
             }
         }
 

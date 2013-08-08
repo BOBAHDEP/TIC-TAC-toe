@@ -8,9 +8,16 @@ public class Game {
 
     private static final int TWO_PLAYERS_ONLINE_GAME_REGIME = 3;
 
+    private static final int FIRST_PLAYER_NUMBER = 1;
+
+    private static final int SECOND_PLAYER_NUMBER = 2;
+
     private int gameRegime = TWO_PLAYERS_GAME_REGIME;
 
     private Field field;
+
+    private GameHistory gameHistory;
+
 
     public static int getTwoPlayersGameRegime(){
         return TWO_PLAYERS_GAME_REGIME;
@@ -22,35 +29,56 @@ public class Game {
 
     public static int getTwoPlayersOnlineGameRegime(){
         return TWO_PLAYERS_ONLINE_GAME_REGIME;
-    };
+    }
 
     public Game(){
         field = new Field();
-        field.araseField();
+        field.emptyField();
+        gameHistory = new GameHistory();
     }
 
-    private void firstPlayerMove(){
+    private void humanMove(int playerNumber){
         boolean setCell = false;
+        while (true){
+            int x = 0,y = 0;
+            while (!setCell)  {
+                x = GetData.GetXCoordinateOfCell(field);
+                y = GetData.GetYCoordinateOfCell(field);
+                if (playerNumber == FIRST_PLAYER_NUMBER){
+                    setCell = field.setCellFirstPlayer(x,y);
+                }else if (playerNumber == SECOND_PLAYER_NUMBER){
+                    setCell = field.setCellSecondPlayer(x,y);
+                }
+            }
+            System.out.println("Do you want to change your choose?");
+            if(GetData.getYesOrNoAnswer()){
+                field.setDefaultCellValue(x,y);
+                setCell = false;
+            } else {
+                break;
+            }
+        }
+    }
+    private void firstPlayerMove(){
+
         if(gameRegime == TWO_PLAYERS_GAME_REGIME || gameRegime == TWO_PLAYERS_ONLINE_GAME_REGIME){
             System.out.println("First Player,");
         } else{
             System.out.println("Player,");
         }
-        while (!setCell)  {
-            setCell = field.setCellFirstPlayer(GetData.GetXCoordinateOfCell(field),GetData.GetYCoordinateOfCell(field));
-        }
+        humanMove(FIRST_PLAYER_NUMBER);
+
     }
 
     private void secondPlayerMove(){
-        boolean setCell = false;
         System.out.println("Second Player,");
-        while (!setCell)  {
-            setCell = field.setCellSecondPlayer(GetData.GetXCoordinateOfCell(field),GetData.GetYCoordinateOfCell(field));
-        }
+        humanMove(SECOND_PLAYER_NUMBER);
+
     }
 
     public void playGame(){
-        field.araseField();
+        gameHistory.emptyHistory();
+        field.emptyField();
         gameRegime = GetData.getRegimeOfGame();
         if(gameRegime == TWO_PLAYERS_GAME_REGIME || gameRegime == ONE_PLAYER_GAME_REGIME){
             playTwoPlayersGame();
@@ -59,6 +87,10 @@ public class Game {
     }
 
     private void restart(){
+        System.out.println("Want to see history of steps?(yes/no)");
+        if(GetData.getYesOrNoAnswer()){
+            gameHistory.showHistory();
+        }
         System.out.println("Want to play again?(yes/no)");
         if(GetData.getYesOrNoAnswer()){
             playGame();
@@ -68,10 +100,15 @@ public class Game {
     }
 
     private void playTwoPlayersGame(){
-        field.araseField();
+        field.emptyField();
         while (true){
             field.showField();
+
+            gameHistory.addStep(field);
             firstPlayerMove();
+
+            gameHistory.addStep(field);
+
             field.showField();
 
             if(field.checkFirstPlayerWinn()){
@@ -87,6 +124,7 @@ public class Game {
             } else {
                 Bot.botMove(field);
             }
+
             if(field.checkSecondPlayerWinn()){
                 if (gameRegime == TWO_PLAYERS_GAME_REGIME){
                     System.out.println("Second player winn");
