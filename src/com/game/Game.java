@@ -18,6 +18,7 @@ public class Game {
 
     private GameHistory gameHistory;
 
+    private GameInternet gameInternet = new GameInternet(null);  //TODO IP
 
     public static int getTwoPlayersGameRegime(){
         return TWO_PLAYERS_GAME_REGIME;
@@ -55,7 +56,10 @@ public class Game {
                 field.setDefaultCellValue(x,y);
                 setCell = false;
             } else {
-                break;
+                if(gameRegime == TWO_PLAYERS_ONLINE_GAME_REGIME){
+                    gameInternet.sentMove(x,y);
+                }
+                return;
             }
         }
     }
@@ -80,7 +84,8 @@ public class Game {
         gameHistory.emptyHistory();
         field.emptyField();
         gameRegime = GetData.getRegimeOfGame();
-        if(gameRegime == TWO_PLAYERS_GAME_REGIME || gameRegime == ONE_PLAYER_GAME_REGIME){
+
+        if(gameRegime == TWO_PLAYERS_GAME_REGIME || gameRegime == ONE_PLAYER_GAME_REGIME || gameRegime == TWO_PLAYERS_ONLINE_GAME_REGIME){
             playTwoPlayersGame();
         }
 
@@ -99,30 +104,47 @@ public class Game {
         }
     }
 
+    private boolean isFirst(){                                                  //todo 2  regime
+        if (gameRegime != TWO_PLAYERS_ONLINE_GAME_REGIME){
+            return true;
+        } else {
+            System.out.println("Are you first to play?");
+                                                                                    //2 потока - сообщение, ввод с клавы
+        } return true;
+    }
+
     private void playTwoPlayersGame(){
         field.emptyField();
+
+        boolean isFirst = isFirst();
+
         while (true){
-            field.showField();
 
-            gameHistory.addStep(field);
-            firstPlayerMove();
+            if(isFirst){
+                field.showField();
 
-            gameHistory.addStep(field);
+                gameHistory.addStep(field);
+                firstPlayerMove();
 
-            field.showField();
+                gameHistory.addStep(field);
 
-            if(field.checkFirstPlayerWinn()){
-                System.out.println("First player winn");
-                restart();
-            }
-            if(field.isFull()){
-                System.out.println("Draw game");
-                restart();
+                field.showField();
+
+                if(field.checkFirstPlayerWinn()){
+                    System.out.println("First player winn");
+                    restart();
+                }
+                if(field.isFull()){
+                    System.out.println("Draw game");
+                    restart();
+                }
             }
             if (gameRegime == TWO_PLAYERS_GAME_REGIME){
                 secondPlayerMove();
-            } else {
+            } else if(gameRegime == ONE_PLAYER_GAME_REGIME){
                 Bot.botMove(field);
+            } else if(gameRegime == TWO_PLAYERS_ONLINE_GAME_REGIME){
+                gameInternet.secondPlayerOnlineMove(field);
             }
 
             if(field.checkSecondPlayerWinn()){
